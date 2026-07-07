@@ -1,0 +1,224 @@
+{% extends "portfolio/base.html" %}
+{% load static portfolio_extras %}
+
+{% block content %}
+
+<header>
+  <nav class="nav">
+    <div class="logo"><span class="dot"></span>rukmini<span style="color:var(--text-dim)">.dev</span></div>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#skills">Stack</a>
+      <a href="#projects">Projects</a>
+      <a href="#timeline">Journey</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#contact" class="nav-cta">Get in touch →</a>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <div class="eyebrow">{{ profile.role_title }}</div>
+        <h1>{{ profile.headline|accentuate }}</h1>
+        <p class="hero-sub">{{ profile.intro }}</p>
+        <div class="hero-actions">
+          <a href="#projects" class="btn btn-primary">View projects ↓</a>
+          {% if profile.resume_file %}
+            <a href="{{ profile.resume_file.url }}" class="btn btn-ghost">Download résumé</a>
+          {% else %}
+            <a href="#" class="btn btn-ghost">Download résumé</a>
+          {% endif %}
+        </div>
+        <div class="hero-meta">
+          <span><b>{{ projects.count|stringformat:"02d" }}</b>Shipped projects</span>
+          <span><b>{{ profile.leetcode_count }}</b>DSA problems solved</span>
+          <span><b>{{ profile.grad_year }}</b>Graduating</span>
+        </div>
+      </div>
+
+      <div class="hero-copy" style="display:contents">
+        <div class="stack-stage" id="stackStage">
+          <div class="stack" id="stack3d">
+            <div class="plane plane-1">
+              <div class="tag">01 — Database</div>
+              <div class="label">PostgreSQL / SQLite</div>
+            </div>
+            <div class="plane plane-2">
+              <div class="tag">02 — Backend</div>
+              <div class="label">Django + DRF + JWT</div>
+            </div>
+            <div class="plane plane-3">
+              <div class="tag">03 — Frontend</div>
+              <div class="label">Bootstrap 5 / Templates</div>
+            </div>
+          </div>
+          <div class="stack-caption">
+            <span>◈</span> move your cursor — the stack responds
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="about-grid">
+      <div class="photo-frame">
+        {% if profile.profile_photo %}
+          <img src="{{ profile.profile_photo.url }}" alt="{{ profile.name }}">
+        {% else %}
+          <div class="photo-placeholder">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+            </svg>
+            <span>Real photo goes here<br>Recommended: 800×1000px<br>portrait, natural light</span>
+          </div>
+          <div class="corner-tag">◆ profile.jpg</div>
+        {% endif %}
+      </div>
+      <div>
+        <div class="eyebrow">About</div>
+        <h2>{{ profile.about_heading }}</h2>
+        {% for para in profile.about_body.splitlines %}
+          {% if para %}<p>{{ para }}</p>{% endif %}
+        {% endfor %}
+        <div class="facts">
+          <div class="fact-card"><div class="n">{{ projects.count|stringformat:"02d" }}</div><div class="l">Full-stack Django apps</div></div>
+          <div class="fact-card"><div class="n">{{ profile.leetcode_count }}</div><div class="l">LeetCode problems (C++)</div></div>
+          <div class="fact-card"><div class="n">2</div><div class="l">Languages supported (EN/HI)</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section class="skills" id="skills">
+    <div class="skills-head">
+      <div>
+        <div class="eyebrow">Technical stack</div>
+        <h2>The tools behind every layer.</h2>
+      </div>
+    </div>
+    <div class="skill-groups">
+      {% for category in skill_categories %}
+        <div class="skill-group{% if category.description %} skill-group-featured{% endif %}">
+          <div class="g-title">{{ category.name }}</div>
+          {% if category.description %}
+            <p class="g-desc">{{ category.description }}</p>
+          {% endif %}
+          <div class="chip-row">
+            {% for skill in category.skills.all %}
+              <span class="chip">{{ skill.name }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      {% empty %}
+        <p style="color:var(--text-dim); font-family:var(--font-mono); font-size:13px;">
+          No skill categories yet — add some from the Django admin.
+        </p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section class="projects" id="projects">
+    <div class="projects-head">
+      <div class="eyebrow">Selected work</div>
+      <h2>Three products, three real problems.</h2>
+      <p>Each one is a complete Django build — models, auth, business logic, and a working UI.</p>
+    </div>
+
+    <div class="project-list">
+      {% for project in projects %}
+        <div class="project-card">
+          <div class="project-media" data-tilt>
+            <span class="project-num">{{ forloop.counter|stringformat:"02d" }}</span>
+            <div class="tilt-inner" data-tilt-inner>
+              {% if project.screenshot %}
+                <img src="{{ project.screenshot.url }}" alt="{{ project.title }} screenshot">
+              {% else %}
+                <span>Screenshot placeholder<br>{{ project.title }}<br>1600×1000px</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="project-body">
+            <div class="project-status"><span class="d"></span>{{ project.get_status_display }}</div>
+            <h3>{{ project.title }}</h3>
+            <p>{{ project.short_description }}</p>
+            <div class="stack-tags">
+              {% for tag in project.tags.all %}
+                <span class="chip">{{ tag.name }}</span>
+              {% endfor %}
+            </div>
+            <div class="project-links">
+              {% if project.github_url %}
+                <a href="{{ project.github_url }}" target="_blank">Code ↗</a>
+              {% endif %}
+              {% if project.live_url %}
+                <a href="{{ project.live_url }}" target="_blank">Live demo ↗</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <p style="color:var(--text-dim); font-family:var(--font-mono); font-size:13px;">
+          No projects yet — add some from the Django admin.
+        </p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="timeline" id="timeline">
+    <div class="eyebrow">Journey</div>
+    <h2>How I got here.</h2>
+    {% for entry in timeline %}
+      <div class="t-row">
+        <div class="t-date">{{ entry.date_label }}</div>
+        <div class="t-content">
+          <h4>{{ entry.title }}</h4>
+          <p>{{ entry.description }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="eyebrow">Get in touch</div>
+    <h2>Have a role, a project, or a hackathon team that needs a full-stack builder?</h2>
+    <p>I reply within a day or two — happy to walk through any of the projects above in more depth.</p>
+    <div class="contact-actions">
+      {% if profile.email %}
+        <a href="mailto:{{ profile.email }}" class="btn btn-primary">Email me →</a>
+      {% elif profile.phone %}
+        <a href="tel:{{ profile.phone }}" class="btn btn-primary">Call me →</a>
+      {% endif %}
+      {% if profile.phone %}
+        <span class="btn btn-ghost" style="cursor:default;">📞 {{ profile.phone }}</span>
+      {% endif %}
+      <a href="{{ profile.linkedin_url }}" target="_blank" class="btn btn-ghost">LinkedIn</a>
+      <a href="{{ profile.github_url }}" target="_blank" class="btn btn-ghost">GitHub</a>
+      {% if profile.leetcode_url %}
+        <a href="{{ profile.leetcode_url }}" target="_blank" class="btn btn-ghost">LeetCode</a>
+      {% endif %}
+    </div>
+
+    <footer>
+      <div>© <span id="year"></span> {{ profile.name }} — built with Django</div>
+      <div class="f-links">
+        <a href="{{ profile.github_url }}" target="_blank">GitHub</a>
+        <a href="{{ profile.linkedin_url }}" target="_blank">LinkedIn</a>
+        <a href="#top">Back to top ↑</a>
+      </div>
+    </footer>
+  </section>
+
+</main>
+
+{% endblock %}
