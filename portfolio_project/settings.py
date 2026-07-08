@@ -2,18 +2,29 @@
 Django settings for portfolio_project.
 """
 
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: replace this with a real secret before deploying,
-# and load it from an environment variable instead of hardcoding it.
-SECRET_KEY = 'django-insecure-change-this-before-you-deploy-anywhere-real'
+# SECURITY WARNING: keep the secret key used in production secret!
+# Locally, the fallback below is fine. On Render (or any host), set a
+# real SECRET_KEY as an environment variable instead.
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
+    'django-insecure-change-this-before-you-deploy-anywhere-real',
+)
 
-# SECURITY WARNING: don't run with DEBUG turned on in production!
-DEBUG = True
+# DEBUG is True locally by default. On your host, set the environment
+# variable DEBUG=False.
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
+# Locally this stays '*'. On your host, set ALLOWED_HOSTS to your real
+# domain (Render sets RENDER_EXTERNAL_HOSTNAME automatically — see below).
 ALLOWED_HOSTS = ['*']
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 
@@ -30,6 +41,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -60,8 +72,6 @@ WSGI_APPLICATION = 'portfolio_project.wsgi.application'
 ASGI_APPLICATION = 'portfolio_project.asgi.application'
 
 # Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -70,7 +80,6 @@ DATABASES = {
 }
 
 # Password validation
-
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -79,7 +88,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
@@ -87,8 +95,16 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript)
 STATIC_URL = 'static/'
-STATICFILES_DIRS = []  # app-level 'static/' folders are picked up automatically
+STATICFILES_DIRS = []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 # Media files (user-uploaded profile photo + project screenshots)
 MEDIA_URL = 'media/'
